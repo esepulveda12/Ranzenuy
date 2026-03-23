@@ -1,0 +1,276 @@
+{% assign current_variant = product.selected_or_first_available_variant %}
+
+<section class="rz-product-page" style="--rz-bg: {{ section.settings.background_color }}; --rz-surface: {{ section.settings.surface_color }}; --rz-text: {{ section.settings.text_color }}; --rz-accent: {{ section.settings.accent_color }};">
+  <div class="rz-wrap">
+    <nav class="rz-breadcrumb" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Inicio</a>
+      <span>/</span>
+      <a href="{{ routes.collections_url }}">Tienda</a>
+      <span>/</span>
+      <span>{{ product.title }}</span>
+    </nav>
+
+    <div class="rz-grid">
+      <div class="rz-gallery">
+        {% if product.featured_image %}
+          {{ product.featured_image | image_url: width: 1300 | image_tag: loading: 'lazy', alt: product.title, class: 'rz-main-image' }}
+        {% endif %}
+
+        {% if product.images.size > 1 %}
+          <div class="rz-thumbs">
+            {% for image in product.images limit: 5 %}
+              {{ image | image_url: width: 220 | image_tag: loading: 'lazy', alt: product.title }}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="rz-info">
+        <p class="rz-type">{{ product.type }}</p>
+        <h1>{{ product.title }}</h1>
+        <p class="rz-price">{{ current_variant.price | money }}</p>
+
+        {% if product.description != blank %}
+          <div class="rz-desc rte">{{ product.description }}</div>
+        {% endif %}
+
+        {% form 'product', product %}
+          {% if product.has_only_default_variant == false %}
+            <label for="variant-select">Opciones</label>
+            <select id="variant-select" name="id">
+              {% for variant in product.variants %}
+                <option value="{{ variant.id }}" {% if variant == current_variant %}selected{% endif %} {% unless variant.available %}disabled{% endunless %}>
+                  {{ variant.title }} - {{ variant.price | money }}
+                </option>
+              {% endfor %}
+            </select>
+          {% else %}
+            <input type="hidden" name="id" value="{{ current_variant.id }}">
+          {% endif %}
+
+          <div class="rz-buy-row">
+            <input type="number" name="quantity" min="1" value="1">
+            <button type="submit" class="rz-add" {% unless current_variant.available %}disabled{% endunless %}>
+              {% if current_variant.available %}
+                {{ section.settings.add_to_cart_label }}
+              {% else %}
+                Agotado
+              {% endif %}
+            </button>
+          </div>
+        {% endform %}
+
+        {% if section.settings.show_dynamic_checkout %}
+          {{ form | payment_button }}
+        {% endif %}
+
+        {% if section.settings.show_vendor and product.vendor != blank %}
+          <p class="rz-meta"><strong>Marca:</strong> {{ product.vendor }}</p>
+        {% endif %}
+
+        {% if section.settings.show_sku and current_variant.sku != blank %}
+          <p class="rz-meta"><strong>SKU:</strong> {{ current_variant.sku }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .rz-product-page {
+    background: var(--rz-bg);
+    color: var(--rz-text);
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    padding: 1.2rem 0 2rem;
+  }
+
+  .rz-wrap {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .rz-breadcrumb {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+  }
+
+  .rz-breadcrumb a {
+    color: #45576b;
+    text-decoration: none;
+  }
+
+  .rz-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 1.2rem;
+  }
+
+  .rz-gallery,
+  .rz-info {
+    background: var(--rz-surface);
+    border: 1px solid #d9e2ed;
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .rz-main-image {
+    width: 100%;
+    display: block;
+    border-radius: 14px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  .rz-thumbs {
+    margin-top: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .rz-thumbs img {
+    width: 100%;
+    border-radius: 9px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  .rz-type {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #617286;
+  }
+
+  .rz-info h1 {
+    margin: 0.2rem 0 0;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.2;
+  }
+
+  .rz-price {
+    margin: 0.55rem 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+
+  .rz-desc {
+    color: #4f5d6f;
+    margin-bottom: 0.95rem;
+  }
+
+  .rz-info label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 700;
+  }
+
+  .rz-info select,
+  .rz-info input[type="number"] {
+    border: 1px solid #c9d8e9;
+    border-radius: 10px;
+    padding: 0.6rem;
+    background: #fff;
+  }
+
+  .rz-info select {
+    width: 100%;
+    margin-bottom: 0.8rem;
+  }
+
+  .rz-buy-row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 0.55rem;
+  }
+
+  .rz-add {
+    border: 1px solid #9ec7e8;
+    background: var(--rz-accent);
+    border-radius: 10px;
+    font-weight: 800;
+    color: #102030;
+    padding: 0.7rem 0.9rem;
+    cursor: pointer;
+  }
+
+  .rz-add[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .rz-meta {
+    margin: 0.6rem 0 0;
+    color: #4f5d6f;
+  }
+
+  @media (max-width: 900px) {
+    .rz-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Ranzen Product",
+  "settings": [
+    {
+      "type": "text",
+      "id": "add_to_cart_label",
+      "label": "Add to cart text",
+      "default": "Agregar al carrito"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sku",
+      "label": "Show SKU",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "Show dynamic checkout",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#faf8f5"
+    },
+    {
+      "type": "color",
+      "id": "surface_color",
+      "label": "Surface",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1e2633"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#defeef"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ranzen Product"
+    }
+  ]
+}
+{% endschema %}

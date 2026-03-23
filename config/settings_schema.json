@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Configuración general",
+    "settings": [
+      {
+        "type": "text",
+        "id": "mensaje_bienvenida",
+        "label": "Mensaje de bienvenida",
+        "default": "¡Bienvenido a mi tienda!"
+      }
+    ]
+  }
+]

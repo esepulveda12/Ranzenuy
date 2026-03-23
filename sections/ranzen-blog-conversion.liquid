@@ -1,0 +1,212 @@
+<section class="rz-blog" style="--rz-bg: {{ section.settings.background_color }}; --rz-card: {{ section.settings.card_color }}; --rz-text: {{ section.settings.text_color }}; --rz-accent: {{ section.settings.accent_color }};">
+  <div class="rz-wrap">
+    <header class="rz-head">
+      <p class="rz-kicker">{{ section.settings.kicker }}</p>
+      <h1>{{ blog.title }}</h1>
+      {% if blog.articles_count > 0 %}
+        <p class="rz-sub">{{ blog.articles_count }} articulos publicados</p>
+      {% endif %}
+    </header>
+
+    {% paginate blog.articles by section.settings.articles_per_page %}
+      <div class="rz-grid">
+        {% for article in blog.articles %}
+          <article class="rz-card">
+            <a href="{{ article.url }}" class="rz-image-link">
+              {% if article.image %}
+                {{ article.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: article.title }}
+              {% else %}
+                <div class="rz-ph"></div>
+              {% endif %}
+            </a>
+            <div class="rz-body">
+              <p class="rz-date">{{ article.published_at | date: "%d/%m/%Y" }}</p>
+              <h2><a href="{{ article.url }}">{{ article.title }}</a></h2>
+              <p>{{ article.excerpt_or_content | strip_html | truncate: 120 }}</p>
+              <a class="rz-btn" href="{{ article.url }}">Leer mas</a>
+            </div>
+          </article>
+        {% else %}
+          <p>No hay articulos todavia.</p>
+        {% endfor %}
+      </div>
+
+      {% if paginate.pages > 1 %}
+        <nav class="rz-pagination" role="navigation" aria-label="Paginacion blog">
+          {{ paginate | default_pagination }}
+        </nav>
+      {% endif %}
+    {% endpaginate %}
+  </div>
+</section>
+
+{% stylesheet %}
+  .rz-blog {
+    background: var(--rz-bg);
+    color: var(--rz-text);
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    padding: 1.2rem 0 2rem;
+  }
+
+  .rz-wrap {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .rz-kicker {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #607082;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .rz-head h1 {
+    margin: 0.2rem 0 0;
+    font-size: clamp(1.55rem, 3vw, 2.2rem);
+  }
+
+  .rz-sub {
+    margin: 0.35rem 0 0;
+    color: #556476;
+  }
+
+  .rz-grid {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .rz-card {
+    border-radius: 16px;
+    border: 1px solid #d8e2ed;
+    background: var(--rz-card);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rz-card img,
+  .rz-ph {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    display: block;
+  }
+
+  .rz-ph {
+    background: linear-gradient(135deg, #dce9f5, #eef4fb);
+  }
+
+  .rz-body {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .rz-date {
+    margin: 0;
+    color: #68788a;
+    font-size: 0.8rem;
+  }
+
+  .rz-body h2 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .rz-body h2 a {
+    text-decoration: none;
+    color: var(--rz-text);
+  }
+
+  .rz-body p {
+    margin: 0;
+    color: #4f5d6f;
+  }
+
+  .rz-btn {
+    text-decoration: none;
+    width: fit-content;
+    margin-top: 0.35rem;
+    border-radius: 999px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #102030;
+    background: var(--rz-accent);
+    border: 1px solid #c3d7e9;
+  }
+
+  .rz-pagination {
+    margin-top: 1.2rem;
+  }
+
+  @media (max-width: 1024px) {
+    .rz-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 700px) {
+    .rz-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Ranzen Blog",
+  "settings": [
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Kicker",
+      "default": "Blog"
+    },
+    {
+      "type": "range",
+      "id": "articles_per_page",
+      "label": "Articles per page",
+      "min": 3,
+      "max": 24,
+      "step": 1,
+      "default": 9
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#faf8f5"
+    },
+    {
+      "type": "color",
+      "id": "card_color",
+      "label": "Card",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1e2633"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#defeef"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ranzen Blog"
+    }
+  ]
+}
+{% endschema %}

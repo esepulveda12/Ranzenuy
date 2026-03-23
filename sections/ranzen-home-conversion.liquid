@@ -1,0 +1,1001 @@
+{% liquid
+  assign featured_collection = collections[section.settings.featured_collection]
+%}
+
+<section class="rz-home" style="--rz-bg: {{ section.settings.background_color }}; --rz-surface: {{ section.settings.surface_color }}; --rz-text: {{ section.settings.text_color }}; --rz-accent: {{ section.settings.accent_color }}; --rz-soft: {{ section.settings.soft_color }};">
+  <div class="rz-announcement">
+    <div class="rz-page-width">
+      <div class="rz-announcement-items">
+        <p>{{ section.settings.shipping_text }}</p>
+        <p>{{ section.settings.refund_text }}</p>
+        {% if section.settings.exchange_label != blank %}
+          <a href="{{ section.settings.exchange_url }}">{{ section.settings.exchange_label }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <header class="rz-header">
+    <div class="rz-page-width rz-header-inner">
+      <a class="rz-brand" href="{{ routes.root_url }}" aria-label="{{ shop.name }}">
+        {% if section.settings.logo != blank %}
+          {{ section.settings.logo | image_url: width: 420 | image_tag: alt: shop.name, loading: 'lazy' }}
+        {% else %}
+          <span>{{ shop.name }}</span>
+        {% endif %}
+      </a>
+
+      <form method="get" action="{{ routes.search_url }}" class="rz-search" role="search" aria-label="Buscar productos">
+        <input type="search" name="q" placeholder="{{ section.settings.search_placeholder }}" value="{{ search.terms | escape }}">
+        <input type="hidden" name="type" value="product">
+        <button type="submit">Buscar</button>
+      </form>
+
+      <div class="rz-quick-links">
+        {% if section.settings.wishlist_label != blank %}
+          <a href="{{ section.settings.wishlist_url }}">{{ section.settings.wishlist_label }}</a>
+        {% endif %}
+
+        {% if section.settings.account_label != blank %}
+          <a href="{{ section.settings.account_url }}">{{ section.settings.account_label }}</a>
+        {% endif %}
+
+        <a class="rz-cart" href="{{ routes.cart_url }}">
+          Carrito ({{ cart.item_count }})
+        </a>
+      </div>
+    </div>
+
+    <div class="rz-page-width">
+      <nav class="rz-nav" aria-label="Main navigation">
+        {% if section.settings.main_menu != blank and linklists[section.settings.main_menu] != blank %}
+          {% for link in linklists[section.settings.main_menu].links limit: 8 %}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {% endfor %}
+        {% else %}
+          {% for block in section.blocks %}
+            {% if block.type == 'nav_link' %}
+              <a href="{{ block.settings.url }}" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <div class="rz-page-width rz-cats">
+    {% for block in section.blocks %}
+      {% if block.type == 'category' %}
+        {% assign cat = collections[block.settings.collection] %}
+        <a class="rz-chip" style="--rz-chip-bg: {{ block.settings.bg_color }}" href="{% if cat != blank %}{{ cat.url }}{% else %}{{ routes.collections_url }}{% endif %}" {{ block.shopify_attributes }}>
+          {% if block.settings.emoji != blank %}
+            <span class="rz-chip-emoji" aria-hidden="true">{{ block.settings.emoji }}</span>
+          {% endif %}
+          <span class="rz-chip-title">{{ block.settings.title }}</span>
+          {% if block.settings.subtitle != blank %}
+            <span class="rz-chip-sub">{{ block.settings.subtitle }}</span>
+          {% endif %}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="rz-hero-wrap">
+    <div class="rz-page-width rz-hero-grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'hero_slide' %}
+          <article class="rz-hero-card" {{ block.shopify_attributes }}>
+            {% if block.settings.image != blank %}
+              {{ block.settings.image | image_url: width: 1600 | image_tag: loading: 'lazy', class: 'rz-hero-image' }}
+            {% else %}
+              <div class="rz-hero-image rz-hero-fallback"></div>
+            {% endif %}
+            <div class="rz-hero-overlay">
+              <p class="rz-hero-kicker">{{ block.settings.kicker }}</p>
+              <h2>{{ block.settings.heading }}</h2>
+              <p>{{ block.settings.description }}</p>
+              {% if block.settings.button_label != blank %}
+                <a href="{{ block.settings.button_link }}" class="rz-btn">{{ block.settings.button_label }}</a>
+              {% endif %}
+            </div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="rz-page-width rz-trust-strip">
+    <div class="rz-trust-item">{{ section.settings.benefit_1 }}</div>
+    <div class="rz-trust-item">{{ section.settings.benefit_2 }}</div>
+    <div class="rz-trust-item">{{ section.settings.benefit_3 }}</div>
+  </div>
+
+  <div class="rz-page-width rz-section-head">
+    <div>
+      <h3>{{ section.settings.products_heading }}</h3>
+      <p>{{ section.settings.products_subheading }}</p>
+    </div>
+  </div>
+
+  <div class="rz-page-width rz-products">
+    {% if featured_collection != blank and featured_collection.products_count > 0 %}
+      {% for product in featured_collection.products limit: section.settings.products_limit %}
+        <article class="rz-product">
+          <a href="{{ product.url }}">
+            {% if product.featured_image %}
+              {{ product.featured_image | image_url: width: 700 | image_tag: loading: 'lazy', alt: product.title }}
+            {% endif %}
+          </a>
+          <div class="rz-product-body">
+            <p class="rz-product-type">{{ product.type }}</p>
+            <h4><a href="{{ product.url }}">{{ product.title }}</a></h4>
+            <p class="rz-price">{{ product.price | money }}</p>
+            <a class="rz-btn rz-btn-small" href="{{ product.url }}">Ver producto</a>
+          </div>
+        </article>
+      {% endfor %}
+    {% else %}
+      {% for i in (1..4) %}
+        <article class="rz-product">
+          <div class="rz-product-placeholder"></div>
+          <div class="rz-product-body">
+            <p class="rz-product-type">Ejemplo</p>
+            <h4>Producto de muestra {{ i }}</h4>
+            <p class="rz-price">$ 0</p>
+            <span class="rz-btn rz-btn-small">Configura una coleccion</span>
+          </div>
+        </article>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <footer class="rz-footer">
+    <div class="rz-page-width rz-footer-inner">
+      <p>{{ section.settings.footer_copy }}</p>
+      <a href="{{ routes.all_products_collection_url }}">Ver toda la tienda</a>
+    </div>
+  </footer>
+</section>
+
+{% stylesheet %}
+  @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap");
+
+  .rz-home {
+    background: var(--rz-bg);
+    color: var(--rz-text);
+    font-family: "Nunito", "Segoe UI", sans-serif;
+    background-image: radial-gradient(circle at 5% -10%, #dff1ff 0, transparent 35%), radial-gradient(circle at 100% 10%, #ffe8f7 0, transparent 28%);
+  }
+
+  .rz-page-width {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .rz-announcement {
+    background: linear-gradient(90deg, var(--rz-accent), #b8e1ff);
+    color: #0f1f2a;
+    font-weight: 700;
+    font-size: 0.88rem;
+    border-bottom: 1px solid #cde0f1;
+  }
+
+  .rz-announcement-items {
+    min-height: 42px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .rz-announcement-items p,
+  .rz-announcement-items a {
+    margin: 0;
+    text-align: center;
+    text-decoration: none;
+    color: #0f1f2a;
+  }
+
+  .rz-header {
+    background: var(--rz-surface);
+    border-bottom: 1px solid #e4e8ee;
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    backdrop-filter: blur(4px);
+  }
+
+  .rz-header-inner {
+    min-height: 88px;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 0.95fr 1.2fr auto;
+    align-items: center;
+  }
+
+  .rz-brand img {
+    width: auto;
+    max-width: 260px;
+    max-height: 62px;
+    display: block;
+  }
+
+  .rz-brand span {
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--rz-text);
+  }
+
+  .rz-nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-bottom: 0.95rem;
+  }
+
+  .rz-nav a {
+    color: var(--rz-text);
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 22px;
+    padding: 0.45rem 0.9rem;
+    background: #f4f8fb;
+    border: 1px solid #dce8f5;
+    font-size: 0.91rem;
+    box-shadow: 0 4px 12px rgba(18, 40, 64, 0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .rz-nav a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(18, 40, 64, 0.12);
+  }
+
+  .rz-nav a:nth-child(1) {
+    background: #defeef;
+  }
+
+  .rz-nav a:nth-child(2) {
+    background: #cce1ff;
+  }
+
+  .rz-nav a:nth-child(3) {
+    background: #fff2d4;
+  }
+
+  .rz-nav a:nth-child(4) {
+    background: #fedbf3;
+  }
+
+  .rz-search {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem;
+  }
+
+  .rz-search input {
+    min-height: 42px;
+    border: 1px solid #d2dfed;
+    border-radius: 999px;
+    padding: 0 0.95rem;
+    font-size: 0.93rem;
+    background: #f9fbfe;
+    box-shadow: inset 0 2px 6px rgba(31, 61, 93, 0.08);
+  }
+
+  .rz-search button {
+    min-height: 42px;
+    border: 1px solid #99c1e4;
+    background: #eaf4ff;
+    color: #17314a;
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0 0.95rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+
+  .rz-search button:hover {
+    transform: translateY(-1px);
+    filter: saturate(1.1);
+  }
+
+  .rz-quick-links {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    justify-content: end;
+  }
+
+  .rz-quick-links a {
+    text-decoration: none;
+    color: #1d2f44;
+    font-size: 0.84rem;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid #d8e4f1;
+    padding: 0.45rem 0.72rem;
+    background: #f8fbff;
+    transition: background-color 0.2s ease;
+  }
+
+  .rz-quick-links a:hover {
+    background: #eef5fc;
+  }
+
+  .rz-cart {
+    color: #0f1f2a;
+    font-weight: 800;
+    background: #defeef;
+    border: 1px solid #a3d7c0;
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    white-space: nowrap;
+  }
+
+  .rz-cats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.7rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .rz-chip {
+    border-radius: 20px;
+    background: var(--rz-chip-bg, var(--rz-soft));
+    border: 1px solid #d9e5f3;
+    text-decoration: none;
+    color: var(--rz-text);
+    padding: 0.8rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    box-shadow: 0 5px 14px rgba(26, 51, 76, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .rz-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 18px rgba(26, 51, 76, 0.12);
+  }
+
+  .rz-chip-title {
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  .rz-chip-emoji {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .rz-chip-sub {
+    font-size: 0.8rem;
+    color: #54606f;
+  }
+
+  .rz-hero-wrap {
+    padding-bottom: 1.25rem;
+  }
+
+  .rz-trust-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+    padding-bottom: 1rem;
+  }
+
+  .rz-trust-item {
+    border-radius: 14px;
+    border: 1px solid #d8e4f1;
+    background: #f7fbff;
+    color: #193149;
+    font-weight: 700;
+    font-size: 0.87rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .rz-hero-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .rz-hero-card {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    min-height: 320px;
+    background: #0f1f2a;
+    box-shadow: 0 12px 26px rgba(18, 34, 53, 0.2);
+    animation: rz-rise 0.55s ease both;
+  }
+
+  .rz-hero-image {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .rz-hero-fallback {
+    background: linear-gradient(120deg, #c4e7ff, #e9f8ff);
+  }
+
+  .rz-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.55));
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    gap: 0.5rem;
+    padding: 1.4rem;
+  }
+
+  .rz-hero-kicker {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+
+  .rz-hero-overlay h2 {
+    margin: 0;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    line-height: 1.08;
+  }
+
+  .rz-hero-overlay p {
+    margin: 0;
+    max-width: 50ch;
+  }
+
+  .rz-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #defeef;
+    color: #0f1f2a;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.9rem;
+    padding: 0.65rem 1rem;
+    width: fit-content;
+    border: 1px solid #b8dac7;
+    box-shadow: 0 4px 10px rgba(12, 36, 57, 0.12);
+  }
+
+  .rz-btn-small {
+    font-size: 0.82rem;
+    padding: 0.52rem 0.8rem;
+  }
+
+  .rz-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 0.75rem;
+  }
+
+  .rz-section-head h3 {
+    margin: 0;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: 1.4rem;
+  }
+
+  .rz-section-head p {
+    margin: 0.2rem 0 0;
+    color: #5d6878;
+  }
+
+  .rz-products {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+  }
+
+  .rz-product {
+    background: var(--rz-surface);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #dfe6f0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 7px 18px rgba(28, 45, 67, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .rz-product:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 22px rgba(28, 45, 67, 0.12);
+  }
+
+  .rz-product img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+  }
+
+  .rz-product-placeholder {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(140deg, #dae8f7, #f0f5fb);
+  }
+
+  .rz-product-body {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .rz-product-type {
+    margin: 0;
+    color: #6c7686;
+    font-size: 0.8rem;
+  }
+
+  .rz-product h4 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .rz-product h4 a {
+    color: var(--rz-text);
+    text-decoration: none;
+  }
+
+  .rz-price {
+    margin: 0;
+    font-weight: 800;
+    color: #0f1f2a;
+  }
+
+  .rz-footer {
+    border-top: 1px solid #dfe6f0;
+    background: #f7f9fc;
+  }
+
+  .rz-chip:nth-child(1) {
+    animation: rz-rise 0.35s ease both;
+  }
+
+  .rz-chip:nth-child(2) {
+    animation: rz-rise 0.45s ease both;
+  }
+
+  .rz-chip:nth-child(3) {
+    animation: rz-rise 0.55s ease both;
+  }
+
+  .rz-chip:nth-child(4) {
+    animation: rz-rise 0.65s ease both;
+  }
+
+  @keyframes rz-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .rz-footer-inner {
+    min-height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .rz-footer p {
+    margin: 0;
+    color: #5f6773;
+    font-size: 0.9rem;
+  }
+
+  .rz-footer a {
+    color: #0f1f2a;
+    font-weight: 700;
+  }
+
+  @media (max-width: 1024px) {
+    .rz-announcement-items {
+      grid-template-columns: 1fr;
+      padding: 0.4rem 0;
+    }
+
+    .rz-header-inner {
+      grid-template-columns: 1fr;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+
+    .rz-nav {
+      justify-content: start;
+    }
+
+    .rz-cats,
+    .rz-products {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rz-quick-links {
+      justify-content: start;
+    }
+
+    .rz-trust-strip {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .rz-hero-grid,
+    .rz-cats,
+    .rz-products {
+      grid-template-columns: 1fr;
+    }
+
+    .rz-hero-card,
+    .rz-hero-image {
+      min-height: 280px;
+    }
+
+    .rz-footer-inner {
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Ranzen Home Conversion",
+  "tag": "section",
+  "class": "section-ranzen-home-conversion",
+  "max_blocks": 24,
+  "settings": [
+    {
+      "type": "text",
+      "id": "shipping_text",
+      "label": "Shipping message",
+      "default": "Envios a todo el pais en 24 hs"
+    },
+    {
+      "type": "text",
+      "id": "refund_text",
+      "label": "Refund message",
+      "default": "Garantia de devolucion del 100% del dinero"
+    },
+    {
+      "type": "text",
+      "id": "exchange_label",
+      "label": "Exchange label",
+      "default": "Plan recambio"
+    },
+    {
+      "type": "url",
+      "id": "exchange_url",
+      "label": "Exchange link"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
+    },
+    {
+      "type": "link_list",
+      "id": "main_menu",
+      "label": "Main menu"
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search placeholder",
+      "default": "Que estas buscando?"
+    },
+    {
+      "type": "text",
+      "id": "wishlist_label",
+      "label": "Wishlist label",
+      "default": "Favoritos"
+    },
+    {
+      "type": "url",
+      "id": "wishlist_url",
+      "label": "Wishlist link"
+    },
+    {
+      "type": "text",
+      "id": "account_label",
+      "label": "Account label",
+      "default": "Login / Register"
+    },
+    {
+      "type": "url",
+      "id": "account_url",
+      "label": "Account link"
+    },
+    {
+      "type": "text",
+      "id": "products_heading",
+      "label": "Products heading",
+      "default": "Productos recomendados para hoy"
+    },
+    {
+      "type": "text",
+      "id": "products_subheading",
+      "label": "Products subheading",
+      "default": "Con estos seguro la rompes"
+    },
+    {
+      "type": "collection",
+      "id": "featured_collection",
+      "label": "Featured collection"
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Products limit",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "text",
+      "id": "footer_copy",
+      "label": "Footer copy",
+      "default": "Ranzen Kids | Tienda online"
+    },
+    {
+      "type": "text",
+      "id": "benefit_1",
+      "label": "Benefit 1",
+      "default": "Envios rapidos a todo Uruguay"
+    },
+    {
+      "type": "text",
+      "id": "benefit_2",
+      "label": "Benefit 2",
+      "default": "Pago seguro y facil"
+    },
+    {
+      "type": "text",
+      "id": "benefit_3",
+      "label": "Benefit 3",
+      "default": "Atencion personalizada"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#faf8f5"
+    },
+    {
+      "type": "color",
+      "id": "surface_color",
+      "label": "Surface",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1d2430"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#defeef"
+    },
+    {
+      "type": "color",
+      "id": "soft_color",
+      "label": "Soft chips",
+      "default": "#f1f6fc"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "nav_link",
+      "name": "Navigation link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Plan recambio"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "name": "Category chip",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Didacticos"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Bloques, puzles y mas"
+        },
+        {
+          "type": "text",
+          "id": "emoji",
+          "label": "Emoji",
+          "default": "🧩"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Chip background",
+          "default": "#f1f6fc"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        }
+      ]
+    },
+    {
+      "type": "hero_slide",
+      "name": "Hero slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "kicker",
+          "label": "Kicker",
+          "default": "Novedades"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Juguetes que no aburren"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Explora juguetes didacticos y creativos para cada etapa."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Conocelos"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ranzen Home",
+      "blocks": [
+        {
+          "type": "nav_link",
+          "settings": {
+            "label": "Por edad"
+          }
+        },
+        {
+          "type": "nav_link",
+          "settings": {
+            "label": "Didacticos"
+          }
+        },
+        {
+          "type": "nav_link",
+          "settings": {
+            "label": "Categorias"
+          }
+        },
+        {
+          "type": "nav_link",
+          "settings": {
+            "label": "Plan recambio"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Por edad",
+            "subtitle": "0-12 meses, 1-3 anos"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Didacticos",
+            "subtitle": "Bloques y encastre"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Categorias",
+            "subtitle": "Aire libre y musicales"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Articulos infantiles",
+            "subtitle": "Regalos para peques"
+          }
+        },
+        {
+          "type": "hero_slide",
+          "settings": {
+            "kicker": "Ranzen kids",
+            "heading": "Juguetes que no aburren",
+            "description": "Productos para aprender, crear y jugar en serio.",
+            "button_label": "Conocelos"
+          }
+        },
+        {
+          "type": "hero_slide",
+          "settings": {
+            "kicker": "Blog",
+            "heading": "El blog de Ranzen Kids",
+            "description": "Ideas, noticias y guias para elegir mejor.",
+            "button_label": "Leer notas"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

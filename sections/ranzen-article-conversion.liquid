@@ -1,0 +1,156 @@
+<section class="rz-article" style="--rz-bg: {{ section.settings.background_color }}; --rz-card: {{ section.settings.card_color }}; --rz-text: {{ section.settings.text_color }}; --rz-accent: {{ section.settings.accent_color }};">
+  <article class="rz-wrap">
+    <a class="rz-back" href="{{ blog.url }}">Volver al blog</a>
+
+    <header class="rz-head">
+      <p class="rz-date">{{ article.published_at | date: "%d/%m/%Y" }}</p>
+      <h1>{{ article.title }}</h1>
+      {% if article.author != blank %}
+        <p class="rz-author">Por {{ article.author }}</p>
+      {% endif %}
+    </header>
+
+    {% if article.image %}
+      {{ article.image | image_url: width: 1600 | image_tag: loading: 'lazy', alt: article.title, class: 'rz-hero' }}
+    {% endif %}
+
+    <div class="rz-content rte">
+      {{ article.content }}
+    </div>
+
+    {% if section.settings.show_share %}
+      <footer class="rz-share">
+        <p>Compartir:</p>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url }}{{ article.url }}" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://wa.me/?text={{ article.title | url_encode }}%20{{ shop.url }}{{ article.url }}" target="_blank" rel="noopener">WhatsApp</a>
+      </footer>
+    {% endif %}
+  </article>
+</section>
+
+{% stylesheet %}
+  .rz-article {
+    background: var(--rz-bg);
+    color: var(--rz-text);
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    padding: 1.2rem 0 2rem;
+  }
+
+  .rz-wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    background: var(--rz-card);
+    border: 1px solid #d8e2ed;
+    border-radius: 18px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .rz-back {
+    text-decoration: none;
+    font-weight: 700;
+    color: #32485f;
+    font-size: 0.9rem;
+  }
+
+  .rz-head {
+    margin-top: 0.6rem;
+  }
+
+  .rz-date,
+  .rz-author {
+    margin: 0;
+    color: #627286;
+    font-size: 0.9rem;
+  }
+
+  .rz-head h1 {
+    margin: 0.35rem 0;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.2;
+  }
+
+  .rz-hero {
+    width: 100%;
+    border-radius: 14px;
+    display: block;
+    margin-top: 0.9rem;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .rz-content {
+    margin-top: 1rem;
+    color: #2d3e52;
+  }
+
+  .rz-share {
+    margin-top: 1.2rem;
+    border-top: 1px solid #dde6f1;
+    padding-top: 0.8rem;
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .rz-share p {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .rz-share a {
+    text-decoration: none;
+    font-weight: 700;
+    color: #13283e;
+    background: var(--rz-accent);
+    border: 1px solid #c0d8ec;
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.82rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Ranzen Article",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_share",
+      "label": "Show share links",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#faf8f5"
+    },
+    {
+      "type": "color",
+      "id": "card_color",
+      "label": "Card",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1e2633"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#defeef"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ranzen Article"
+    }
+  ]
+}
+{% endschema %}
