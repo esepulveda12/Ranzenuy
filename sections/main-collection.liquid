@@ -1,0 +1,22 @@
+<section class="main-collection">
+  <div class="wrapper">
+    {% if collection %}
+      <h1>{{ collection.title }}</h1>
+      <ul>
+        {% for product in collection.products %}
+          <li>
+            <a href="{{ product.url }}">{{ product.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No collection found.</p>
+    {% endif %}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Main Collection",
+  "settings": []
+}
+{% endschema %}

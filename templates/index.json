@@ -1,0 +1,8 @@
+{
+  "sections": {
+    "main": {
+      "type": "ranzen-home-conversion"
+    }
+  },
+  "order": ["main"]
+}

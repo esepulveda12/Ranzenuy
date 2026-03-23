@@ -1,0 +1,20 @@
+<section class="main-product">
+  <div class="wrapper">
+    {% if product %}
+      <h1>{{ product.title }}</h1>
+      <div>{{ product.description }}</div>
+      <form action="/cart/add" method="post">
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <button type="submit">Add to cart</button>
+      </form>
+    {% else %}
+      <p>No product found.</p>
+    {% endif %}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Main Product",
+  "settings": []
+}
+{% endschema %}
